@@ -1,6 +1,6 @@
-#r "nuget: BookStackApiClient, 23.6.0"
+#r "nuget: BookStackApiClient, 23.6.1"
 #r "nuget: SkiaSharp, 2.88.3"
-#r "nuget: Lestaly, 0.40.0"
+#r "nuget: Lestaly, 0.43.0"
 #nullable enable
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -28,7 +28,7 @@ var settings = new
 };
 
 // main processing
-await Paved.RunAsync(async () =>
+await Paved.RunAsync(configuration: c => c.AnyPause(), action: async () =>
 {
     // Set output to UTF8 encoding.
     using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
@@ -45,6 +45,7 @@ await Paved.RunAsync(async () =>
     var image2 = images[1];
 
     // Create sample entities
+    Console.WriteLine("Setup entities ...");
     var book = await client.CreateBookAsync(new("TestBook"), cancelToken: signal.Token);
     var chapter1 = await client.CreateChapterAsync(new(book.id, "TestChapter1"), signal.Token);
     var page1 = await client.CreateMarkdownPageInChapterAsync(new(chapter1.id, "TestPage1", "# markdown page1"), signal.Token);
@@ -59,6 +60,7 @@ await Paved.RunAsync(async () =>
 
     var attach1 = await client.CreateFileAttachmentAsync(new("image1", page3.id), image1.Binary, $"image1.{image1.Ext}", signal.Token);
     var attach2 = await client.CreateFileAttachmentAsync(new("image2", page4.id), image2.Binary, $"image2.{image2.Ext}", signal.Token);
+    Console.WriteLine("Completed");
 
 });
 

@@ -1,6 +1,6 @@
 #r "nuget: SmtpServer, 9.0.3"
 #r "nuget: MimeKit, 4.1.0"
-#r "nuget: Lestaly, 0.40.0"
+#r "nuget: Lestaly, 0.43.0"
 #nullable enable
 using System.Buffers;
 using System.Net;
@@ -98,7 +98,7 @@ class FileMessageStore : MessageStore
         }
         catch (Exception ex)
         {
-            ConsoleWig.WriteLineColord(ConsoleColor.Red, $"    Failed to store. Err={ex.Message}");
+            ConsoleWig.WriteLineColored(ConsoleColor.Red, $"    Failed to store. Err={ex.Message}");
         }
 
         return SmtpResponse.Ok;

@@ -1,5 +1,5 @@
 #r "sdk:Microsoft.NET.Sdk.Web"
-#r "nuget: Lestaly, 0.40.0"
+#r "nuget: Lestaly, 0.43.0"
 #nullable enable
 using Microsoft.AspNetCore.Builder;
 using System.Net.Http;
@@ -65,18 +65,18 @@ await Paved.RunAsync(async () =>
             var body = await request.ReadFromJsonAsync<JsonElement>();
             var json = JsonSerializer.Serialize(body, jsonOpt);
             if (0 < settings.MaxJsonOutputLength) json = json.EllipsisByLength(settings.MaxJsonOutputLength, "...");
-            ConsoleWig.WriteLineColord(ConsoleColor.Green, $"{DateTime.Now}: Endpoint={request.Path}, JSON received.").WriteLine(json);
+            ConsoleWig.WriteLineColored(ConsoleColor.Green, $"{DateTime.Now}: Endpoint={request.Path}, JSON received.").WriteLine(json);
         }
         catch
         {
-            ConsoleWig.WriteLineColord(ConsoleColor.Yellow, $"{DateTime.Now}: Endpoint={request.Path}, Not JSON.");
+            ConsoleWig.WriteLineColored(ConsoleColor.Yellow, $"{DateTime.Now}: Endpoint={request.Path}, Not JSON.");
         }
 
         return Results.Ok();
     });
     server.MapFallback((HttpRequest request) =>
     {
-        ConsoleWig.WriteLineColord(ConsoleColor.DarkGray, $"{DateTime.Now}: Ignore request, Path={request.Path}");
+        ConsoleWig.WriteLineColored(ConsoleColor.DarkGray, $"{DateTime.Now}: Ignore request, Path={request.Path}");
         return Results.NotFound();
     });
 
