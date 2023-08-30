@@ -1,6 +1,6 @@
-#r "nuget: BookStackApiClient, 23.6.0-lib.1"
-#r "nuget: SkiaSharp, 2.88.3"
-#r "nuget: Lestaly, 0.44.0"
+#r "nuget: BookStackApiClient, 23.8.0-lib.1"
+#r "nuget: SkiaSharp, 2.88.5"
+#r "nuget: Lestaly, 0.45.0"
 #nullable enable
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -28,7 +28,7 @@ var settings = new
 };
 
 // main processing
-await Paved.RunAsync(configuration: c => c.AnyPause(), action: async () =>
+await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
 {
     // Set output to UTF8 encoding.
     using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
