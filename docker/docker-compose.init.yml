@@ -1,6 +1,6 @@
 services:
   app:
-    image: lscr.io/linuxserver/bookstack:version-v23.06.2
+    image: lscr.io/linuxserver/bookstack:version-v23.08
     entrypoint: bash -c '(test -d /localize/lang || cp -R /app/www/lang /localize/lang) && (test -d /localize/views || cp -R /app/www/resources/views /localize/views)'
     volumes:
       - ../volumes/app/localize:/localize
