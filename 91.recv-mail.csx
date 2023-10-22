@@ -1,6 +1,6 @@
-#r "nuget: SmtpServer, 9.0.3"
-#r "nuget: MimeKit, 4.1.0"
-#r "nuget: Lestaly, 0.45.0"
+#r "nuget: SmtpServer, 9.1.0"
+#r "nuget: MimeKit, 4.2.0"
+#r "nuget: Lestaly, 0.48.0"
 #nullable enable
 using System.Buffers;
 using System.Net;

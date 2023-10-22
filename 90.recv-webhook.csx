@@ -1,5 +1,5 @@
 #r "sdk:Microsoft.NET.Sdk.Web"
-#r "nuget: Lestaly, 0.45.0"
+#r "nuget: Lestaly, 0.48.0"
 #nullable enable
 using Microsoft.AspNetCore.Builder;
 using System.Net.Http;

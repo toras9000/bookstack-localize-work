@@ -1,8 +1,9 @@
-#r "nuget: Lestaly, 0.45.0"
+#r "nuget: Lestaly, 0.48.0"
 #nullable enable
 using System.Net.Http;
 using System.Threading;
 using Lestaly;
+using Lestaly.Cx;
 
 // This script is meant to run with dotnet-script (v1.4 or lator).
 // You can install .NET SDK 7.0 and install dotnet-script with the following command.
@@ -30,16 +31,16 @@ await Paved.RunAsync(async () =>
         {
             Console.WriteLine("Init localize export ...");
             var initFile = ThisSource.RelativeFile("./docker/docker-compose.init.yml");
-            await CmdProc.CallAsync("docker", new[] { "compose", "--file", initFile.FullName, "down", "--remove-orphans", "--volumes", });
-            await CmdProc.CallAsync("docker", new[] { "compose", "--file", initFile.FullName, "run", "app", });
-            await CmdProc.CallAsync("docker", new[] { "compose", "--file", initFile.FullName, "down", "--remove-orphans", "--volumes", });
+            await "docker".args("compose", "--file", initFile.FullName, "down", "--remove-orphans", "--volumes").silent();
+            await "docker".args("compose", "--file", initFile.FullName, "run", "app").silent();
+            await "docker".args("compose", "--file", initFile.FullName, "down", "--remove-orphans", "--volumes").silent();
         }
 
         var composeFile = ThisSource.RelativeFile("./docker/docker-compose.yml");
         Console.WriteLine("Stop service");
-        await CmdProc.CallAsync("docker", new[] { "compose", "--file", composeFile.FullName, "down", "--remove-orphans", "--volumes", });
+        await "docker".args("compose", "--file", composeFile.FullName, "down", "--remove-orphans", "--volumes").silent();
         Console.WriteLine("Start service");
-        await CmdProc.CallAsync("docker", new[] { "compose", "--file", composeFile.FullName, "up", "-d", });
+        await "docker".args("compose", "--file", composeFile.FullName, "up", "-d").silent().result().success();
 
         if (settings.LaunchAfterUp)
         {
