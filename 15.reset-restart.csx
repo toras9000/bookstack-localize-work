@@ -48,12 +48,9 @@ await Paved.RunAsync(async () =>
         if (settings.LaunchAfterUp)
         {
             Console.WriteLine("Waiting for accessible ...");
+            var checkUri = new Uri(settings.ServiceUrl);
             using var checker = new HttpClient();
-            while (true)
-            {
-                try { await checker.GetAsync(settings.ServiceUrl); break; }
-                catch { await Task.Delay(1000); }
-            }
+            while (!await checker.IsSuccessStatusAsync(checkUri)) await Task.Delay(1000);
 
             Console.WriteLine("Launch site.");
             await CmdShell.ExecAsync(settings.ServiceUrl);

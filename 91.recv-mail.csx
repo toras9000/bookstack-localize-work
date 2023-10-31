@@ -90,10 +90,10 @@ class FileMessageStore : MessageStore
             fullMsg.Position = 0;
             var decodedMsg = await MimeKit.MimeMessage.LoadAsync(fullMsg).ConfigureAwait(false);
             var decodedText = decodedMsg.TextBody;
-            if (!string.IsNullOrEmpty(decodedText))
+            if (decodedText.IsNotWhite())
             {
                 var textFile = this.SaveDir.RelativeFile($"recv_{timestamp:yyyyMMdd_HHmmss.fff}-text.txt");
-                await textFile.WriteAllTextAsync(decodedMsg.TextBody, cancellationToken).ConfigureAwait(false);
+                await textFile.WriteAllTextAsync(decodedText, cancellationToken).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
