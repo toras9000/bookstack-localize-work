@@ -1,6 +1,6 @@
 #r "nuget: BookStackApiClient, 23.8.0-lib.1"
 #r "nuget: SkiaSharp, 2.88.6"
-#r "nuget: Lestaly, 0.45.0"
+#r "nuget: Lestaly, 0.50.0"
 #nullable enable
 using System.Text.RegularExpressions;
 using System.Threading;
