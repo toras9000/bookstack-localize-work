@@ -39,15 +39,10 @@ await Paved.RunAsync(async () =>
         var composeFile = ThisSource.RelativeFile("./docker/docker-compose.yml");
         Console.WriteLine("Restart service");
         await "docker".args("compose", "--file", composeFile.FullName, "down", "--remove-orphans", "--volumes").silent();
-        await "docker".args("compose", "--file", composeFile.FullName, "up", "-d").silent().result().success();
+        await "docker".args("compose", "--file", composeFile.FullName, "up", "-d", "--wait").silent().result().success();
 
         if (settings.LaunchAfterUp)
         {
-            Console.WriteLine("Waiting for accessible ...");
-            var checkUri = new Uri(settings.ServiceUrl);
-            using var checker = new HttpClient();
-            while (!await checker.IsSuccessStatusAsync(checkUri)) await Task.Delay(1000);
-
             Console.WriteLine("Launch site.");
             await CmdShell.ExecAsync(settings.ServiceUrl);
         }

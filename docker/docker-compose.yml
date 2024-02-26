@@ -11,8 +11,8 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "--host=localhost", "--user=root"]
       interval: 15s
-      timeout: 5s
-      retries: 6
+      timeout: 10s
+      retries: 10
       start_period: 60s
     ports:
       - "9983:3306"
@@ -36,6 +36,12 @@ services:
       default:
         aliases:
           - bookstack-app-container
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 40
+      start_period: 30s
     ports:
       - "9984:80"
     volumes:
@@ -54,10 +60,12 @@ services:
       - DB_USER=bookstack_user
       - DB_PASS=bookstack_pass
       - CUSTOM_APP_THEME=my-theme
-      - CUSTOM_API_REQUESTS_PER_MIN=99999
       - CUSTOM_MAIL_HOST=localize-host-gateway
       - CUSTOM_MAIL_PORT=1025
       - CUSTOM_MAIL_ENCRYPTION=null
+      - CUSTOM_API_REQUESTS_PER_MIN=99999
+      - CUSTOM_TEST_TOKEN_ID=00001111222233334444555566667777
+      - CUSTOM_TEST_TOKEN_SECRET=88889999aaaabbbbccccddddeeeeffff
     extra_hosts:
           - localize-host-gateway:host-gateway
 
