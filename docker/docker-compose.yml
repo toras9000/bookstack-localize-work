@@ -9,15 +9,14 @@ services:
         aliases:
           - bookstack-db-container
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--host=localhost", "--user=root"]
+      test: mysqladmin ping --host=localhost --user=$${MYSQL_USER} || exit 1
+      start_period: 10s
       interval: 15s
       timeout: 10s
-      retries: 10
-      start_period: 60s
+      retries: 16
     ports:
       - "9983:3306"
     volumes:
-#      - ../volumes/db:/var/lib/mysql
       - ./assets:/dummy-mount:ro
     environment:
       - TZ=Asia/Tokyo
@@ -27,7 +26,7 @@ services:
       - MYSQL_PASSWORD=bookstack_pass
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v24.02
+    image: lscr.io/linuxserver/bookstack:version-v24.02.2
     restart: unless-stopped
     depends_on:
       db:
@@ -37,15 +36,14 @@ services:
         aliases:
           - bookstack-app-container
     healthcheck:
-      test: ["CMD", "curl", "http://localhost"]
-      interval: 30s
+      test: curl -f http://localhost || exit 1
+      start_period: 10s
+      interval: 15s
       timeout: 10s
-      retries: 40
-      start_period: 30s
+      retries: 60
     ports:
       - "9984:80"
     volumes:
-#      - ../volumes/app/config:/config
       - ../volumes/app/localize/lang:/app/www/lang
       - ../volumes/app/localize/views:/app/www/resources/views
       - ./assets/init:/custom-cont-init.d

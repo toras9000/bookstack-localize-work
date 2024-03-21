@@ -1,5 +1,5 @@
 #r "sdk:Microsoft.NET.Sdk.Web"
-#r "nuget: Lestaly, 0.54.0"
+#r "nuget: Lestaly, 0.57.0"
 #nullable enable
 using Microsoft.AspNetCore.Builder;
 using System.Net.Http;
@@ -13,9 +13,8 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Encodings.Web;
 
-// This script is meant to run with dotnet-script (v1.4 or lator).
-// You can install .NET SDK 7.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
+// This script is meant to run with dotnet-script.
+// Install .NET8 and run `dotnet tool install -g dotnet-script`
 
 // Script to receive and display BookStack webhook submissions.
 // The webhook JSON contains a translation string.

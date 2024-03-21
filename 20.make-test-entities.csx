@@ -1,6 +1,6 @@
-#r "nuget: BookStackApiClient, 23.12.0-lib.1"
-#r "nuget: SkiaSharp, 2.88.6"
-#r "nuget: Lestaly, 0.54.0"
+#r "nuget: BookStackApiClient, 24.2.0-lib.1"
+#r "nuget: SkiaSharp, 2.88.7"
+#r "nuget: Lestaly, 0.57.0"
 #nullable enable
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -9,8 +9,7 @@ using Lestaly;
 using SkiaSharp;
 
 // This script is meant to run with dotnet-script.
-// You can install .NET SDK 7.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
+// Install .NET8 and run `dotnet tool install -g dotnet-script`
 
 // Create a sample entities.
 

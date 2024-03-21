@@ -1,6 +1,6 @@
 #r "nuget: SmtpServer, 10.0.1"
-#r "nuget: MimeKit, 4.3.0"
-#r "nuget: Lestaly, 0.54.0"
+#r "nuget: MimeKit, 4.4.0"
+#r "nuget: Lestaly, 0.57.0"
 #nullable enable
 using System.Buffers;
 using System.Net;
@@ -12,9 +12,8 @@ using SmtpServer.Protocol;
 using SmtpServer.Storage;
 using SmtpServerServiceProvider = SmtpServer.ComponentModel.ServiceProvider;
 
-// This script is meant to run with dotnet-script (v1.4 or lator).
-// You can install .NET SDK 7.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
+// This script is meant to run with dotnet-script.
+// Install .NET8 and run `dotnet tool install -g dotnet-script`
 
 // Receive and dump mail.
 
