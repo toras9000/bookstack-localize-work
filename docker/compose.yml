@@ -8,16 +8,15 @@ services:
       default:
         aliases:
           - bookstack-db-container
-    healthcheck:
-      test: mysqladmin ping --host=localhost --user=$${MYSQL_USER} || exit 1
-      start_period: 10s
-      interval: 15s
-      timeout: 10s
-      retries: 16
     ports:
       - "9983:3306"
-    volumes:
-      - ./assets:/dummy-mount:ro
+    healthcheck:
+      test: mysqladmin ping --host=localhost --user=$${MYSQL_USER} || exit 1
+      start_period: 180s
+      start_interval: 5s
+      timeout: 5s
+      interval: 300s
+      retries: 3
     environment:
       - TZ=Asia/Tokyo
       - MYSQL_ROOT_PASSWORD=bookstack_rootpass
@@ -26,7 +25,7 @@ services:
       - MYSQL_PASSWORD=bookstack_pass
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v24.02.2
+    image: lscr.io/linuxserver/bookstack:version-v24.05.2
     restart: unless-stopped
     depends_on:
       db:
@@ -35,17 +34,16 @@ services:
       default:
         aliases:
           - bookstack-app-container
-    healthcheck:
-      test: curl -f http://localhost || exit 1
-      start_period: 10s
-      interval: 15s
-      timeout: 10s
-      retries: 60
     ports:
       - "9984:80"
+    healthcheck:
+      test: curl -f http://localhost:80 || exit 1
+      start_period: 300s
+      start_interval: 3s
+      timeout: 5s
+      interval: 300s
+      retries: 3
     volumes:
-      - ../volumes/app/localize/lang:/app/www/lang
-      - ../volumes/app/localize/views:/app/www/resources/views
       - ./assets/init:/custom-cont-init.d
       - ./assets/template:/assets/template
     environment:
@@ -53,17 +51,16 @@ services:
       - PUID=1000
       - PGID=1000
       - APP_URL=http://localhost:9984/
+      - APP_THEME=my-theme
       - DB_HOST=bookstack-db-container
       - DB_DATABASE=bookstack_store
       - DB_USER=bookstack_user
       - DB_PASS=bookstack_pass
-      - CUSTOM_APP_THEME=my-theme
-      - CUSTOM_MAIL_HOST=localize-host-gateway
-      - CUSTOM_MAIL_PORT=1025
-      - CUSTOM_MAIL_ENCRYPTION=null
-      - CUSTOM_API_REQUESTS_PER_MIN=99999
+      - MAIL_PORT=1025
+      - MAIL_ENCRYPTION=null
+      - API_REQUESTS_PER_MIN=99999
       - CUSTOM_TEST_TOKEN_ID=00001111222233334444555566667777
       - CUSTOM_TEST_TOKEN_SECRET=88889999aaaabbbbccccddddeeeeffff
     extra_hosts:
-          - localize-host-gateway:host-gateway
+      - localize-host-gateway:host-gateway
 

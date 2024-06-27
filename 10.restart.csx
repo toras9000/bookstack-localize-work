@@ -1,4 +1,4 @@
-#r "nuget: Lestaly, 0.54.0"
+#r "nuget: Lestaly, 0.61.0"
 #nullable enable
 using System.Net.Http;
 using System.Threading;
@@ -21,34 +21,28 @@ var settings = new
     LaunchAfterUp = true,
 };
 
-await Paved.RunAsync(async () =>
+await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
 {
-    try
-    {
-        var langDir = ThisSource.RelativeDirectory("./volumes/app/localize/lang");
-        var viewsDir = ThisSource.RelativeDirectory("./volumes/app/localize/views");
-        if (!langDir.Exists || !viewsDir.Exists)
-        {
-            Console.WriteLine("Init localize export ...");
-            var initFile = ThisSource.RelativeFile("./docker/docker-compose.init.yml");
-            await "docker".args("compose", "--file", initFile.FullName, "down", "--remove-orphans", "--volumes").silent();
-            await "docker".args("compose", "--file", initFile.FullName, "run", "app").silent();
-            await "docker".args("compose", "--file", initFile.FullName, "down", "--remove-orphans", "--volumes").silent();
-        }
+    var langDir = ThisSource.RelativeDirectory("./volumes/app/localize/lang");
+    var viewsDir = ThisSource.RelativeDirectory("./volumes/app/localize/views");
+    var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
+    var initFile = ThisSource.RelativeFile("./docker/extract-resource.yml");
+    var volumeFile = ThisSource.RelativeFile("./docker/volume-bind.yml");
 
-        var composeFile = ThisSource.RelativeFile("./docker/docker-compose.yml");
-        Console.WriteLine("Restart service");
-        await "docker".args("compose", "--file", composeFile.FullName, "down", "--remove-orphans", "--volumes").silent();
-        await "docker".args("compose", "--file", composeFile.FullName, "up", "-d", "--wait").silent().result().success();
+    await "docker".args("compose", "--file", composeFile.FullName, "--file", initFile.FullName,   "down", "--remove-orphans", "--volumes").silent();
+    await "docker".args("compose", "--file", composeFile.FullName, "--file", volumeFile.FullName, "down", "--remove-orphans", "--volumes").silent();
 
-        if (settings.LaunchAfterUp)
-        {
-            Console.WriteLine("Launch site.");
-            await CmdShell.ExecAsync(settings.ServiceUrl);
-        }
-    }
-    catch (CmdProcExitCodeException err)
+    if (!langDir.Exists || !viewsDir.Exists)
     {
-        throw new PavedMessageException($"ExitCode: {err.ExitCode}\nOutput: {err.Output}", err);
+        WriteLine("Init localize export ...");
+        await "docker".args("compose", "--file", composeFile.FullName, "--file", initFile.FullName, "run", "app").silent();
+        await "docker".args("compose", "--file", composeFile.FullName, "--file", initFile.FullName, "down", "--remove-orphans", "--volumes").silent();
     }
+
+    WriteLine("Restart service");
+    await "docker".args("compose", "--file", composeFile.FullName, "--file", volumeFile.FullName, "up", "-d", "--wait").silent().result().success();
+
+    WriteLine("Service address");
+    ConsoleWig.Write(" ").WriteLink(settings.ServiceUrl).NewLine();
+    WriteLine();
 });
