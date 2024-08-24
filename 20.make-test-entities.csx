@@ -1,6 +1,7 @@
 #r "nuget: BookStackApiClient, 24.5.0-lib.1"
 #r "nuget: SkiaSharp, 2.88.8"
-#r "nuget: Lestaly, 0.61.0"
+#r "nuget: Lestaly, 0.67.0"
+#load ".compose-helper.csx"
 #nullable enable
 using System.Text.RegularExpressions;
 using System.Threading;

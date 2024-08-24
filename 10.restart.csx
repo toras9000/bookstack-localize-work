@@ -1,13 +1,13 @@
-#r "nuget: Lestaly, 0.61.0"
+#r "nuget: Lestaly, 0.67.0"
+#load ".compose-helper.csx"
 #nullable enable
 using System.Net.Http;
 using System.Threading;
 using Lestaly;
 using Lestaly.Cx;
 
-// This script is meant to run with dotnet-script (v1.4 or lator).
-// You can install .NET SDK 7.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
+// This script is meant to run with dotnet-script.
+// Install .NET8 and run `dotnet tool install -g dotnet-script`
 
 // Restart docker container.
 // (If it is not activated, it is simply activated.)

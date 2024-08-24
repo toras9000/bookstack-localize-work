@@ -1,12 +1,15 @@
 #r "nuget: SmtpServer, 10.0.1"
-#r "nuget: MimeKit, 4.6.0"
-#r "nuget: Lestaly, 0.61.0"
+#r "nuget: MimeKit, 4.7.1"
+#r "nuget: Lestaly, 0.67.0"
+#r "nuget: Kokuban, 0.2.0"
+#load ".compose-helper.csx"
 #nullable enable
 using System.Buffers;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Lestaly;
+using Kokuban;
 using SmtpServer;
 using SmtpServer.Protocol;
 using SmtpServer.Storage;
@@ -97,7 +100,7 @@ class FileMessageStore : MessageStore
         }
         catch (Exception ex)
         {
-            ConsoleWig.WriteLineColored(ConsoleColor.Red, $"    Failed to store. Err={ex.Message}");
+            WriteLine(Chalk.Red[$"    Failed to store. Err={ex.Message}"]);
         }
 
         return SmtpResponse.Ok;

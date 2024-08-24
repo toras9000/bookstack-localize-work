@@ -1,17 +1,21 @@
 #r "sdk:Microsoft.NET.Sdk.Web"
-#r "nuget: Lestaly, 0.61.0"
+#r "nuget: Lestaly, 0.67.0"
+#r "nuget: Kokuban, 0.2.0"
+#load ".compose-helper.csx"
 #nullable enable
-using Microsoft.AspNetCore.Builder;
+using System.IO;
 using System.Net.Http;
+using System.Security.Authentication.ExtendedProtection;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading;
-using Lestaly;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.IO;
-using System.Text.Json;
-using System.Text.Encodings.Web;
+using Microsoft.Extensions.Logging.Console;
+using Kokuban;
+using Lestaly;
 
 // This script is meant to run with dotnet-script.
 // Install .NET8 and run `dotnet tool install -g dotnet-script`
@@ -64,18 +68,19 @@ await Paved.RunAsync(async () =>
             var body = await request.ReadFromJsonAsync<JsonElement>();
             var json = JsonSerializer.Serialize(body, jsonOpt);
             if (0 < settings.MaxJsonOutputLength) json = json.EllipsisByLength(settings.MaxJsonOutputLength, "...");
-            ConsoleWig.WriteLineColored(ConsoleColor.Green, $"{DateTime.Now}: Endpoint={request.Path}, JSON received.").WriteLine(json);
+            WriteLine(Chalk.Green[$"{DateTime.Now}: Endpoint={request.Path}, JSON received."]);
+            WriteLine(json);
         }
         catch
         {
-            ConsoleWig.WriteLineColored(ConsoleColor.Yellow, $"{DateTime.Now}: Endpoint={request.Path}, Not JSON.");
+            WriteLine(Chalk.Yellow[$"{DateTime.Now}: Endpoint={request.Path}, Not JSON."]);
         }
 
         return Results.Ok();
     });
     server.MapFallback((HttpRequest request) =>
     {
-        ConsoleWig.WriteLineColored(ConsoleColor.DarkGray, $"{DateTime.Now}: Ignore request, Path={request.Path}");
+        WriteLine(Chalk.Gray[$"{DateTime.Now}: Ignore request, Path={request.Path}"]);
         return Results.NotFound();
     });
 

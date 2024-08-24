@@ -1,5 +1,7 @@
-#r "nuget: Lestaly, 0.61.0"
+#r "nuget: Lestaly, 0.67.0"
+#load ".compose-helper.csx"
 #nullable enable
+using System.Buffers;
 using System.Net.Http;
 using System.Threading;
 using Lestaly;
@@ -8,8 +10,7 @@ using Lestaly.Cx;
 // This script is meant to run with dotnet-script.
 // Install .NET8 and run `dotnet tool install -g dotnet-script`
 
-// Restart docker container with deletion of persistent data.
-// (If it is not activated, it is simply activated.)
+// deletion of persistent data.
 
 var settings = new
 {
