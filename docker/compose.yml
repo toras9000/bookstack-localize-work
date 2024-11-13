@@ -25,7 +25,7 @@ services:
       - MYSQL_PASSWORD=bookstack_pass
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v24.10
+    image: lscr.io/linuxserver/bookstack:version-v24.12
     restart: unless-stopped
     depends_on:
       db:
@@ -37,7 +37,7 @@ services:
     ports:
       - "9984:80"
     healthcheck:
-      test: curl -f http://localhost:80 || exit 1
+      test: curl -f -s http://localhost:80 || exit 1
       start_period: 300s
       start_interval: 3s
       timeout: 5s
@@ -51,11 +51,12 @@ services:
       - PUID=1000
       - PGID=1000
       - APP_URL=http://localhost:9984/
+      - APP_KEY=base64:EE9OBef6jsw7268M+LLMJKvkZ9R9gXhIqwIdwdIzJ2I=
       - APP_THEME=my-theme
       - DB_HOST=bookstack-db-container
       - DB_DATABASE=bookstack_store
-      - DB_USER=bookstack_user
-      - DB_PASS=bookstack_pass
+      - DB_USERNAME=bookstack_user
+      - DB_PASSWORD=bookstack_pass
       - MAIL_PORT=1025
       - MAIL_ENCRYPTION=null
       - API_REQUESTS_PER_MIN=99999
