@@ -23,7 +23,7 @@ using SmtpServerServiceProvider = SmtpServer.ComponentModel.ServiceProvider;
 var settings = new
 {
     // Name of the host as seen from within the container
-    ContainerGatewayName = "localize-host-gateway",
+    ContainerGatewayName = "host.docker.internal",
 
     // Accept port for mail service.
     PortNumber = 1025,

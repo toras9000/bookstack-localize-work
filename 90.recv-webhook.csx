@@ -32,7 +32,7 @@ var settings = new
     EndpointName = "test-endpoint",
 
     // Name of the host as seen from within the container
-    ContainerGatewayName = "localize-host-gateway",
+    ContainerGatewayName = "host.docker.internal",
 
     // Maximum output length of received JSON. If the value is less than or equal to zero, output the whole.
     MaxJsonOutputLength = -1,
