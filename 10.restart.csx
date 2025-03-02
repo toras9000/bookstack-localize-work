@@ -23,26 +23,12 @@ var settings = new
 
 await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
 {
-    var langDir = ThisSource.RelativeDirectory("./volumes/app/localize/lang");
-    var viewsDir = ThisSource.RelativeDirectory("./volumes/app/localize/views");
-    var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
-    var initFile = ThisSource.RelativeFile("./docker/extract-resource.yml");
-    var volumeFile = ThisSource.RelativeFile("./docker/volume-bind.yml");
-
-    await "docker".args("compose", "--file", composeFile.FullName, "--file", initFile.FullName,   "down", "--remove-orphans", "--volumes").silent();
-    await "docker".args("compose", "--file", composeFile.FullName, "--file", volumeFile.FullName, "down", "--remove-orphans", "--volumes").silent();
-
-    if (!langDir.Exists || !viewsDir.Exists)
-    {
-        WriteLine("Init localize export ...");
-        await "docker".args("compose", "--file", composeFile.FullName, "--file", initFile.FullName, "run", "app").silent();
-        await "docker".args("compose", "--file", composeFile.FullName, "--file", initFile.FullName, "down", "--remove-orphans", "--volumes").silent();
-    }
-
     WriteLine("Restart service");
-    await "docker".args("compose", "--file", composeFile.FullName, "--file", volumeFile.FullName, "up", "-d", "--wait").silent().result().success();
+    var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
+    await "docker".args("compose", "--file", composeFile.FullName, "down", "--remove-orphans").echo();
+    await "docker".args("compose", "--file", composeFile.FullName, "up", "--detach", "--wait").echo().result().success();
 
     WriteLine("Service address");
-    ConsoleWig.Write(" ").WriteLink(settings.ServiceUrl).NewLine();
+    WriteLine($" {Poster.Link[settings.ServiceUrl]}");
     WriteLine();
 });

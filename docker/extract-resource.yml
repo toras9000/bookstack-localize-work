@@ -1,5 +1,0 @@
-services:
-  app:
-    entrypoint: bash -c '(test -d /localize/lang || cp -R /app/www/lang /localize/lang) && (test -d /localize/views || cp -R /app/www/resources/views /localize/views)'
-    volumes:
-      - ../volumes/app/localize:/localize

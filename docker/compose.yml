@@ -1,3 +1,9 @@
+name: bookstack-localize-work
+
+volumes:
+  bookstack-db-data:
+  bookstack-app-data:
+
 services:
   db:
     # (windows + docker desktop + wsl2 + mariadb + bookstack) is initial migration failed.
@@ -8,8 +14,10 @@ services:
       default:
         aliases:
           - bookstack-db-container
-    ports:
-      - "9983:3306"
+    volumes:
+      - type: volume
+        source: bookstack-db-data
+        target: /var/lib/mysql
     healthcheck:
       test: mysqladmin ping --host=localhost --user=$${MYSQL_USER} || exit 1
       start_period: 180s
@@ -24,12 +32,36 @@ services:
       - MYSQL_USER=bookstack_user
       - MYSQL_PASSWORD=bookstack_pass
 
+  extract:
+    image: lscr.io/linuxserver/bookstack:version-v25.02
+    restart: none
+    entrypoint: bash /extract/extract.sh
+    volumes:
+      - type: bind
+        source: ./assets/extract
+        target: /extract
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../volumes/app/localize/lang
+        target: /localize/lang
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ../volumes/app/localize/views
+        target: /localize/views
+        bind:
+          create_host_path: true
+
   app:
     image: lscr.io/linuxserver/bookstack:version-v25.02
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
+      extract:
+        condition: service_completed_successfully
     networks:
       default:
         aliases:
@@ -44,8 +76,33 @@ services:
       interval: 300s
       retries: 3
     volumes:
-      - ./assets/init:/custom-cont-init.d
-      - ./assets/template:/assets/template
+      - type: volume
+        source: bookstack-app-data
+        target: /config
+      - type: bind
+        source: ./assets/init
+        target: /custom-cont-init.d
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./assets/template
+        target: /assets/template
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../volumes/app/localize/lang
+        target: /app/www/lang
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../volumes/app/localize/views
+        target: /app/www/resources/views
+        read_only: true
+        bind:
+          create_host_path: false
     environment:
       - TZ=Asia/Tokyo
       - PUID=1000
