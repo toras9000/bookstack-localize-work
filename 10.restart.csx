@@ -1,4 +1,4 @@
-#r "nuget: Lestaly, 0.69.0"
+#r "nuget: Lestaly, 0.74.0"
 #load ".compose-helper.csx"
 #nullable enable
 using System.Net.Http;

@@ -1,6 +1,6 @@
 #r "nuget: SmtpServer, 10.0.1"
-#r "nuget: MimeKit, 4.8.0"
-#r "nuget: Lestaly, 0.69.0"
+#r "nuget: MimeKit, 4.11.0"
+#r "nuget: Lestaly, 0.74.0"
 #r "nuget: Kokuban, 0.2.0"
 #load ".compose-helper.csx"
 #nullable enable
