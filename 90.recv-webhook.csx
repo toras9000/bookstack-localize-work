@@ -1,5 +1,5 @@
 #r "sdk:Microsoft.NET.Sdk.Web"
-#r "nuget: Lestaly, 0.74.0"
+#r "nuget: Lestaly, 0.76.0"
 #r "nuget: Kokuban, 0.2.0"
 #load ".compose-helper.csx"
 #nullable enable
@@ -18,7 +18,7 @@ using Kokuban;
 using Lestaly;
 
 // This script is meant to run with dotnet-script.
-// Install .NET8 and run `dotnet tool install -g dotnet-script`
+// Install .NET SDK and run `dotnet tool install -g dotnet-script`
 
 // Script to receive and display BookStack webhook submissions.
 // The webhook JSON contains a translation string.
@@ -45,9 +45,9 @@ await Paved.RunAsync(async () =>
 
     // Display URL to set up in BookStack.
     // This will be by the hostname added to the included docker container.
-    Console.WriteLine($"Endpoint address:");
-    Console.WriteLine($"    http://{settings.ContainerGatewayName}:{settings.PortNumber}/{settings.EndpointName}");
-    Console.WriteLine();
+    WriteLine($"Endpoint address:");
+    WriteLine($"    http://{settings.ContainerGatewayName}:{settings.PortNumber}/{settings.EndpointName}");
+    WriteLine();
 
     // Formatting options for outputting JSON.
     var jsonOpt = new JsonSerializerOptions();
@@ -85,6 +85,6 @@ await Paved.RunAsync(async () =>
     });
 
     // Start HTTP Server
-    Console.WriteLine($"Start HTTP service.");
+    WriteLine($"Start HTTP service.");
     await server.RunAsync($"http://*:{settings.PortNumber}");
 });

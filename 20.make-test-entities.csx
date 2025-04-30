@@ -1,6 +1,6 @@
 #r "nuget: BookStackApiClient, 25.2.0-lib.1"
 #r "nuget: SkiaSharp, 3.116.1"
-#r "nuget: Lestaly, 0.74.0"
+#r "nuget: Lestaly, 0.76.0"
 #load ".compose-helper.csx"
 #nullable enable
 using System.Text.RegularExpressions;
@@ -10,7 +10,7 @@ using Lestaly;
 using SkiaSharp;
 
 // This script is meant to run with dotnet-script.
-// Install .NET8 and run `dotnet tool install -g dotnet-script`
+// Install .NET SDK and run `dotnet tool install -g dotnet-script`
 
 // Create a sample entities.
 
@@ -29,11 +29,9 @@ var settings = new
 // main processing
 await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
 {
-    // Set output to UTF8 encoding.
+    // Prepare console
     using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
-
-    // Handle cancel key press
-    using var signal = ConsoleWig.CreateCancelKeyHandlePeriod();
+    using var signal = new SignalCancellationPeriod();
 
     // Generate a number of entities for testing.
     using var client = new BookStackClient(settings.ApiEntry, settings.ApiToken, settings.ApiSecret);
@@ -44,7 +42,7 @@ await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
     var image2 = images[1];
 
     // Create sample entities
-    Console.WriteLine("Setup entities ...");
+    WriteLine("Setup entities ...");
     var book = await client.CreateBookAsync(new("TestBook"), cancelToken: signal.Token);
     var chapter1 = await client.CreateChapterAsync(new(book.id, "TestChapter1"), signal.Token);
     var page1 = await client.CreateMarkdownPageInChapterAsync(new(chapter1.id, "TestPage1", "# markdown page1"), signal.Token);
@@ -52,14 +50,14 @@ await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
     var chapter2 = await client.CreateChapterAsync(new(book.id, "TestChapter2"), signal.Token);
     var page3 = await client.CreateMarkdownPageInChapterAsync(new(chapter2.id, "TestPage3", "# markdown page3"), signal.Token);
     var page4 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage4", "# markdown page4"), signal.Token);
-    var shelf = await client.CreateShelfAsync(new("TestShelf", books: new[] { book.id, }), cancelToken: signal.Token);
+    var shelf = await client.CreateShelfAsync(new("TestShelf", books: [book.id,]), cancelToken: signal.Token);
 
     var gallery1 = await client.CreateImageAsync(new(page1.id, "gallery", "image1"), image1.Binary, $"image1.{image1.Ext}", signal.Token);
     var gallery2 = await client.CreateImageAsync(new(page2.id, "gallery", "image2"), image2.Binary, $"image2.{image2.Ext}", signal.Token);
 
     var attach1 = await client.CreateFileAttachmentAsync(new("image1", page3.id), image1.Binary, $"image1.{image1.Ext}", signal.Token);
     var attach2 = await client.CreateFileAttachmentAsync(new("image2", page4.id), image2.Binary, $"image2.{image2.Ext}", signal.Token);
-    Console.WriteLine("Completed");
+    WriteLine("Completed");
 
 });
 

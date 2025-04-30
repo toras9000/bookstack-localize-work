@@ -1,6 +1,6 @@
 #r "nuget: SmtpServer, 10.0.1"
-#r "nuget: MimeKit, 4.11.0"
-#r "nuget: Lestaly, 0.74.0"
+#r "nuget: MimeKit, 4.12.0"
+#r "nuget: Lestaly, 0.76.0"
 #r "nuget: Kokuban, 0.2.0"
 #load ".compose-helper.csx"
 #nullable enable
@@ -31,17 +31,14 @@ var settings = new
 
 await Paved.RunAsync(async () =>
 {
-    // Set output encoding to UTF8.
     using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
-
-    // Handle Ctrl+C
-    using var signal = ConsoleWig.CreateCancelKeyHandlePeriod();
+    using var signal = new SignalCancellationPeriod();
 
     // Display server information.
     // This has already been configured in the included container, so no additional configuration should be required.
-    Console.WriteLine($"Server address : {settings.ContainerGatewayName}");
-    Console.WriteLine($"Server port    : {settings.PortNumber}");
-    Console.WriteLine();
+    WriteLine($"Server address : {settings.ContainerGatewayName}");
+    WriteLine($"Server port    : {settings.PortNumber}");
+    WriteLine();
 
     // Configure server options.
     var options = new SmtpServerOptionsBuilder()
@@ -54,7 +51,7 @@ await Paved.RunAsync(async () =>
     provider.Add(new FileMessageStore());
 
     // Start HTTP Server
-    Console.WriteLine($"Start mail receiver.");
+    WriteLine($"Start mail receiver.");
     var server = new SmtpServer.SmtpServer(options, provider);
     await server.StartAsync(signal.Token);
 });
@@ -71,7 +68,7 @@ class FileMessageStore : MessageStore
     public override async Task<SmtpResponse> SaveAsync(ISessionContext context, IMessageTransaction transaction, ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
     {
         var timestamp = DateTime.Now;
-        Console.WriteLine($"  {timestamp:yyyyMMdd_HHmmss.fff}: To={transaction.To.Select(t => $"{t.User}@{t.Host}").JoinString(", ")}");
+        WriteLine($"  {timestamp:yyyyMMdd_HHmmss.fff}: To={transaction.To.Select(t => $"{t.User}@{t.Host}").JoinString(", ")}");
         try
         {
             // Copy the entire message into the memory stream.

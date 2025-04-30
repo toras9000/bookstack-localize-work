@@ -1,4 +1,4 @@
-#r "nuget: Lestaly, 0.74.0"
+#r "nuget: Lestaly, 0.76.0"
 #load ".compose-helper.csx"
 #nullable enable
 using System.Net.Http;
@@ -7,7 +7,7 @@ using Lestaly;
 using Lestaly.Cx;
 
 // This script is meant to run with dotnet-script.
-// Install .NET8 and run `dotnet tool install -g dotnet-script`
+// Install .NET SDK and run `dotnet tool install -g dotnet-script`
 
 // Restart docker container.
 // (If it is not activated, it is simply activated.)
@@ -25,8 +25,8 @@ await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
 {
     WriteLine("Restart service");
     var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
-    await "docker".args("compose", "--file", composeFile.FullName, "down", "--remove-orphans").echo();
-    await "docker".args("compose", "--file", composeFile.FullName, "up", "--detach", "--wait").echo().result().success();
+    await "docker".args("compose", "--file", composeFile, "down", "--remove-orphans").echo();
+    await "docker".args("compose", "--file", composeFile, "up", "--detach", "--wait").echo().result().success();
 
     WriteLine("Service address");
     WriteLine($" {Poster.Link[settings.ServiceUrl]}");

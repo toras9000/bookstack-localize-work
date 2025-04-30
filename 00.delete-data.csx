@@ -1,4 +1,4 @@
-#r "nuget: Lestaly, 0.74.0"
+#r "nuget: Lestaly, 0.76.0"
 #load ".compose-helper.csx"
 #nullable enable
 using System.Buffers;
@@ -8,7 +8,7 @@ using Lestaly;
 using Lestaly.Cx;
 
 // This script is meant to run with dotnet-script.
-// Install .NET8 and run `dotnet tool install -g dotnet-script`
+// Install .NET SDK and run `dotnet tool install -g dotnet-script`
 
 // deletion of persistent data.
 
@@ -25,7 +25,7 @@ await Paved.RunAsync(async () =>
 {
     var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
     WriteLine("Stop service");
-    await "docker".args("compose", "--file", composeFile.FullName, "down", "--remove-orphans", "--volumes").echo().result().success();
+    await "docker".args("compose", "--file", composeFile, "down", "--remove-orphans", "--volumes").echo().result().success();
     await "docker".args("volume", "rm", "bookstack-localize-work_bookstack-app-data").echo();
     await "docker".args("volume", "rm", "bookstack-localize-work_bookstack-db-data").echo();
 
