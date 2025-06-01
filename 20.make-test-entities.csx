@@ -1,7 +1,8 @@
-#r "nuget: BookStackApiClient, 25.2.0-lib.1"
-#r "nuget: SkiaSharp, 3.116.1"
-#r "nuget: Lestaly, 0.76.0"
-#load ".compose-helper.csx"
+#r "nuget: BookStackApiClient, 25.5.0-lib.1"
+#r "nuget: SkiaSharp, 3.119.0"
+#r "nuget: Faker.Net, 2.0.163"
+#r "nuget: Lestaly, 0.83.0"
+#load ".settings.csx"
 #nullable enable
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -9,32 +10,14 @@ using BookStackApiClient;
 using Lestaly;
 using SkiaSharp;
 
-// This script is meant to run with dotnet-script.
-// Install .NET SDK and run `dotnet tool install -g dotnet-script`
-
-// Create a sample entities.
-
-var settings = new
-{
-    // API base address for BookStack.(Trailing slash is required.)
-    ApiEntry = new Uri(@"http://localhost:9984/api/"),
-
-    // API Token for working container 
-    ApiToken = "00001111222233334444555566667777",
-
-    // API Token for working container 
-    ApiSecret = "88889999aaaabbbbccccddddeeeeffff",
-};
-
-// main processing
-await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
+return await Paved.ProceedAsync(async () =>
 {
     // Prepare console
     using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
     using var signal = new SignalCancellationPeriod();
 
     // Generate a number of entities for testing.
-    using var client = new BookStackClient(settings.ApiEntry, settings.ApiToken, settings.ApiSecret);
+    using var client = new BookStackClient(new(settings.BookStack.Api.Entry), settings.BookStack.Api.TokenId, settings.BookStack.Api.TokenSecret);
 
     // generate sample images
     var images = generateSampleImages();
@@ -45,11 +28,11 @@ await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
     WriteLine("Setup entities ...");
     var book = await client.CreateBookAsync(new("TestBook"), cancelToken: signal.Token);
     var chapter1 = await client.CreateChapterAsync(new(book.id, "TestChapter1"), signal.Token);
-    var page1 = await client.CreateMarkdownPageInChapterAsync(new(chapter1.id, "TestPage1", "# markdown page1"), signal.Token);
-    var page2 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage2", "# markdown page2"), signal.Token);
+    var page1 = await client.CreateMarkdownPageInChapterAsync(new(chapter1.id, "TestPage1", $"# markdown page1\n{Faker.Lorem.Paragraphs(4).JoinString("\n\n")}"), signal.Token);
+    var page2 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage2", $"# markdown page2\n{Faker.Lorem.Paragraphs(4).JoinString("\n\n")}"), signal.Token);
     var chapter2 = await client.CreateChapterAsync(new(book.id, "TestChapter2"), signal.Token);
-    var page3 = await client.CreateMarkdownPageInChapterAsync(new(chapter2.id, "TestPage3", "# markdown page3"), signal.Token);
-    var page4 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage4", "# markdown page4"), signal.Token);
+    var page3 = await client.CreateMarkdownPageInChapterAsync(new(chapter2.id, "TestPage3", $"# markdown page3\n{Faker.Lorem.Paragraphs(4).JoinString("\n\n")}"), signal.Token);
+    var page4 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage4", $"# markdown page4\n{Faker.Lorem.Paragraphs(4).JoinString("\n\n")}"), signal.Token);
     var shelf = await client.CreateShelfAsync(new("TestShelf", books: [book.id,]), cancelToken: signal.Token);
 
     var gallery1 = await client.CreateImageAsync(new(page1.id, "gallery", "image1"), image1.Binary, $"image1.{image1.Ext}", signal.Token);

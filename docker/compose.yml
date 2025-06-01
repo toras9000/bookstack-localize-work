@@ -14,6 +14,8 @@ services:
       default:
         aliases:
           - bookstack-db-container
+    ports:
+      - "9983:3306"
     volumes:
       - type: volume
         source: bookstack-db-data
@@ -32,8 +34,30 @@ services:
       - MYSQL_USER=bookstack_user
       - MYSQL_PASSWORD=bookstack_pass
 
+  mail:
+    image: my/maildump
+    pull_policy: never
+    build:
+      context: ./assets/mail
+    restart: unless-stopped
+    networks:
+      default:
+        aliases:
+          - maildump-container
+    volumes:
+      - type: bind
+        source: ../maildump
+        target: /var/maildump
+        bind:
+          create_host_path: true
+    environment:
+      - TZ=Asia/Tokyo
+      - MAIL_HOST=myserver.home
+      - MAIL_PORT=25
+      - MAIL_DUMP_DIR=/var/maildump
+
   extract:
-    image: lscr.io/linuxserver/bookstack:version-v25.02
+    image: lscr.io/linuxserver/bookstack:version-v25.05
     restart: none
     entrypoint: bash /extract/extract.sh
     volumes:
@@ -55,7 +79,7 @@ services:
           create_host_path: true
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v25.02
+    image: lscr.io/linuxserver/bookstack:version-v25.05
     restart: unless-stopped
     depends_on:
       db:
@@ -80,18 +104,6 @@ services:
         source: bookstack-app-data
         target: /config
       - type: bind
-        source: ./assets/init
-        target: /custom-cont-init.d
-        read_only: true
-        bind:
-          create_host_path: false
-      - type: bind
-        source: ./assets/template
-        target: /assets/template
-        read_only: true
-        bind:
-          create_host_path: false
-      - type: bind
         source: ../volumes/app/localize/lang
         target: /app/www/lang
         read_only: true
@@ -109,16 +121,12 @@ services:
       - PGID=1000
       - APP_URL=http://localhost:9984/
       - APP_KEY=base64:EE9OBef6jsw7268M+LLMJKvkZ9R9gXhIqwIdwdIzJ2I=
-      - APP_THEME=my-theme
       - DB_HOST=bookstack-db-container
       - DB_DATABASE=bookstack_store
       - DB_USERNAME=bookstack_user
       - DB_PASSWORD=bookstack_pass
-      - MAIL_PORT=1025
+      - MAIL_HOST=maildump-container
+      - MAIL_PORT=25
       - MAIL_ENCRYPTION=null
       - API_REQUESTS_PER_MIN=99999
-      - CUSTOM_TEST_TOKEN_ID=00001111222233334444555566667777
-      - CUSTOM_TEST_TOKEN_SECRET=88889999aaaabbbbccccddddeeeeffff
-    extra_hosts:
-      - localize-host-gateway:host-gateway
 

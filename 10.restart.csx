@@ -1,34 +1,17 @@
-#r "nuget: Lestaly, 0.76.0"
-#load ".compose-helper.csx"
+#r "nuget: Lestaly, 0.83.0"
+#load ".settings.csx"
 #nullable enable
-using System.Net.Http;
-using System.Threading;
 using Lestaly;
 using Lestaly.Cx;
 
-// This script is meant to run with dotnet-script.
-// Install .NET SDK and run `dotnet tool install -g dotnet-script`
-
-// Restart docker container.
-// (If it is not activated, it is simply activated.)
-
-var settings = new
-{
-    // Service URL
-    ServiceUrl = @"http://localhost:9984/",
-
-    // Whether to open the URL after the UP.
-    LaunchAfterUp = true,
-};
-
-await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
+return await Paved.ProceedAsync(async () =>
 {
     WriteLine("Restart service");
-    var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
-    await "docker".args("compose", "--file", composeFile, "down", "--remove-orphans").echo();
-    await "docker".args("compose", "--file", composeFile, "up", "--detach", "--wait").echo().result().success();
+    await "docker".args("compose", "--file", settings.Docker.Compose, "down", "--remove-orphans").echo();
+    await "docker".args("compose", "--file", settings.Docker.Compose, "up", "--detach", "--wait").echo().result().success();
 
-    WriteLine("Service address");
-    WriteLine($" {Poster.Link[settings.ServiceUrl]}");
     WriteLine();
+    await "dotnet".args("script", ThisSource.RelativeFile("12.meke-api-token.csx"), "--", "--no-pause").result().success();
+    WriteLine();
+    await "dotnet".args("script", ThisSource.RelativeFile("11.show-url.csx"), "--", "--no-pause").result().success();
 });

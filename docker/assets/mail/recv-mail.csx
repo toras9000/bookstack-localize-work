@@ -1,8 +1,7 @@
 #r "nuget: SmtpServer, 10.0.1"
 #r "nuget: MimeKit, 4.12.0"
-#r "nuget: Lestaly, 0.76.0"
+#r "nuget: Lestaly, 0.83.0"
 #r "nuget: Kokuban, 0.2.0"
-#load ".compose-helper.csx"
 #nullable enable
 using System.Buffers;
 using System.Net;
@@ -20,35 +19,32 @@ using SmtpServerServiceProvider = SmtpServer.ComponentModel.ServiceProvider;
 
 // Receive and dump mail.
 
-var settings = new
-{
-    // Name of the host as seen from within the container
-    ContainerGatewayName = "host.docker.internal",
-
-    // Accept port for mail service.
-    PortNumber = 1025,
-};
-
 await Paved.RunAsync(async () =>
 {
     using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
     using var signal = new SignalCancellationPeriod();
 
+    // Service info
+    var hostName = Environment.GetEnvironmentVariable("MAIL_HOST") ?? "localhost";
+    var portNumber = Environment.GetEnvironmentVariable("MAIL_PORT")?.TryParseNumber<ushort>() ?? 25;
+    var dumpDir = ThisSource.RelativeDirectory(Environment.GetEnvironmentVariable("MAIL_DUMP_DIR") ?? "/var/maildump");
+
     // Display server information.
     // This has already been configured in the included container, so no additional configuration should be required.
-    WriteLine($"Server address : {settings.ContainerGatewayName}");
-    WriteLine($"Server port    : {settings.PortNumber}");
+    WriteLine($"Server name : {hostName}");
+    WriteLine($"Server port : {portNumber}");
+    WriteLine($"Dump dir    : {dumpDir.FullName}");
     WriteLine();
 
     // Configure server options.
     var options = new SmtpServerOptionsBuilder()
-        .ServerName(settings.ContainerGatewayName)
-        .Endpoint(builder => builder.Endpoint(new IPEndPoint(IPAddress.Any, settings.PortNumber)))
+        .ServerName(hostName)
+        .Endpoint(builder => builder.Endpoint(new IPEndPoint(IPAddress.Any, portNumber)))
         .Build();
 
     // Prepare service providers.
     var provider = new SmtpServerServiceProvider();
-    provider.Add(new FileMessageStore());
+    provider.Add(new FileMessageStore(dumpDir));
 
     // Start HTTP Server
     WriteLine($"Start mail receiver.");
@@ -56,15 +52,8 @@ await Paved.RunAsync(async () =>
     await server.StartAsync(signal.Token);
 });
 
-class FileMessageStore : MessageStore
+class FileMessageStore(DirectoryInfo dumpDir) : MessageStore
 {
-    public FileMessageStore()
-    {
-        this.SaveDir = ThisSource.RelativeDirectory("mail").WithCreate();
-    }
-
-    public DirectoryInfo SaveDir { get; }
-
     public override async Task<SmtpResponse> SaveAsync(ISessionContext context, IMessageTransaction transaction, ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
     {
         var timestamp = DateTime.Now;
@@ -72,27 +61,30 @@ class FileMessageStore : MessageStore
         try
         {
             // Copy the entire message into the memory stream.
-            // This is to match the I/F of MimeKit.
-            using var fullMsg = new MemoryStream();
-            foreach (var memory in buffer)
-            {
-                await fullMsg.WriteAsync(memory, cancellationToken).ConfigureAwait(false);
-            }
+            // This is to match the MimeKit I/F used for decoding.
+            using var rawMsg = new MemoryStream();
 
             // Save the entire message to a file.
-            fullMsg.Position = 0;
-            var fullFile = this.SaveDir.RelativeFile($"recv_{timestamp:yyyyMMdd_HHmmss.fff}.txt");
-            using var fullWriter = fullFile.OpenWrite();
-            await fullMsg.CopyToAsync(fullWriter, cancellationToken).ConfigureAwait(false);
+            var rawFile = dumpDir.RelativeFile($"{timestamp:yyyyMMdd_HHmmss.fff}.txt");
+            using var rawWriter = rawFile.OpenWrite();
+
+            // Write to memory&file stream
+            foreach (var memory in buffer)
+            {
+                await Task.WhenAll(
+                    rawMsg.WriteAsync(memory, cancellationToken).AsTask(),
+                    rawWriter.WriteAsync(memory, cancellationToken).AsTask()
+                );
+            }
 
             // Decode the message and save the text to a file.
-            fullMsg.Position = 0;
-            var decodedMsg = await MimeKit.MimeMessage.LoadAsync(fullMsg).ConfigureAwait(false);
+            rawMsg.Position = 0;
+            var decodedMsg = await MimeKit.MimeMessage.LoadAsync(rawMsg);
             var decodedText = decodedMsg.TextBody;
             if (decodedText.IsNotWhite())
             {
-                var textFile = this.SaveDir.RelativeFile($"recv_{timestamp:yyyyMMdd_HHmmss.fff}-text.txt");
-                await textFile.WriteAllTextAsync(decodedText, cancellationToken).ConfigureAwait(false);
+                var textFile = dumpDir.RelativeFile($"{timestamp:yyyyMMdd_HHmmss.fff}-text.txt");
+                await textFile.WriteAllTextAsync(decodedText, cancellationToken);
             }
         }
         catch (Exception ex)

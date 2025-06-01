@@ -1,33 +1,13 @@
-#r "nuget: Lestaly, 0.76.0"
-#load ".compose-helper.csx"
+#r "nuget: Lestaly, 0.83.0"
+#load ".settings.csx"
 #nullable enable
-using System.Buffers;
-using System.Net.Http;
-using System.Threading;
 using Lestaly;
 using Lestaly.Cx;
 
-// This script is meant to run with dotnet-script.
-// Install .NET SDK and run `dotnet tool install -g dotnet-script`
-
-// deletion of persistent data.
-
-var settings = new
+return await Paved.RunAsync(async () =>
 {
-    // Service URL
-    ServiceUrl = @"http://localhost:9984/",
-
-    // Whether to open the URL after the UP.
-    LaunchAfterUp = true,
-};
-
-await Paved.RunAsync(async () =>
-{
-    var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
     WriteLine("Stop service");
-    await "docker".args("compose", "--file", composeFile, "down", "--remove-orphans", "--volumes").echo().result().success();
-    await "docker".args("volume", "rm", "bookstack-localize-work_bookstack-app-data").echo();
-    await "docker".args("volume", "rm", "bookstack-localize-work_bookstack-db-data").echo();
+    await "docker".args("compose", "--file", settings.Docker.Compose, "down", "--remove-orphans", "--volumes").echo().result().success();
 
     var volumesDir = ThisSource.RelativeDirectory("./volumes");
     if (volumesDir.Exists)
@@ -36,4 +16,10 @@ await Paved.RunAsync(async () =>
         volumesDir.DeleteRecurse();
     }
 
+    var mailDir = ThisSource.RelativeDirectory("./maildump");
+    if (mailDir.Exists)
+    {
+        WriteLine("Delete maildump files ...");
+        mailDir.DeleteRecurse();
+    }
 });
