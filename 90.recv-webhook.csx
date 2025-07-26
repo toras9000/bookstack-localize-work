@@ -1,5 +1,5 @@
 #r "sdk:Microsoft.NET.Sdk.Web"
-#r "nuget: Lestaly, 0.83.0"
+#r "nuget: Lestaly.General, 0.100.0"
 #r "nuget: Kokuban, 0.2.0"
 #load ".settings.csx"
 #nullable enable
