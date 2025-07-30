@@ -57,7 +57,7 @@ services:
       - MAIL_DUMP_DIR=/var/maildump
 
   extract:
-    image: lscr.io/linuxserver/bookstack:version-v25.05
+    image: lscr.io/linuxserver/bookstack:version-v25.07
     restart: none
     entrypoint: bash /extract/extract.sh
     volumes:
@@ -79,7 +79,7 @@ services:
           create_host_path: true
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v25.05
+    image: lscr.io/linuxserver/bookstack:version-v25.07
     restart: unless-stopped
     depends_on:
       db:
