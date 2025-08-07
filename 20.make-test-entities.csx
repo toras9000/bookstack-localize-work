@@ -1,7 +1,7 @@
-#r "nuget: BookStackApiClient, 25.5.0-lib.3"
+#r "nuget: BookStackApiClient, 25.7.0-lib.1"
 #r "nuget: SkiaSharp, 3.119.0"
 #r "nuget: Faker.Net, 2.0.163"
-#r "nuget: Lestaly.General, 0.100.0"
+#r "nuget: Lestaly.General, 0.102.0"
 #load ".settings.csx"
 #nullable enable
 using System.Text.RegularExpressions;
