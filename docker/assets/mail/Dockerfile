@@ -1,18 +1,15 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder
-
-RUN dotnet tool install -g dotnet-script
-
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS builder
 
 WORKDIR /work
-COPY ./recv-mail.csx  ./
+COPY ./recv-mail.cs1  ./
 
-RUN /root/.dotnet/tools/dotnet-script publish \
+RUN dotnet publish \
         --configuration Release \
         --output /work/publish \
-        recv-mail.csx
+        recv-mail.cs1
 
 
-FROM mcr.microsoft.com/dotnet/runtime:9.0
+FROM mcr.microsoft.com/dotnet/runtime:10.0
 
 WORKDIR /app
 COPY --chmod=+x --from=builder  /work/publish  /app

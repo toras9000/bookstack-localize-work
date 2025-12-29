@@ -1,25 +1,27 @@
-#r "nuget: Lestaly.General, 0.102.0"
-#load ".settings.csx"
-#nullable enable
+#!/usr/bin/env -S dotnet run --file
+#:package Lestaly.General@0.114.0
+#:package RefFile@0.2.0
 using Lestaly;
 using Lestaly.Cx;
+[assembly: RefFile(".settings.cs1")]
 
 return await Paved.RunAsync(async () =>
 {
-    WriteLine("Stop service");
+    Console.WriteLine("Stop service");
+    var settings = new Settings(ThisSource.Directory());
     await "docker".args("compose", "--file", settings.Docker.Compose, "down", "--remove-orphans", "--volumes").echo().result().success();
 
     var volumesDir = ThisSource.RelativeDirectory("./volumes");
     if (volumesDir.Exists)
     {
-        WriteLine("Delete volumes files ...");
+        Console.WriteLine("Delete volumes files ...");
         volumesDir.DeleteRecurse();
     }
 
     var mailDir = ThisSource.RelativeDirectory("./maildump");
     if (mailDir.Exists)
     {
-        WriteLine("Delete maildump files ...");
+        Console.WriteLine("Delete maildump files ...");
         mailDir.DeleteRecurse();
     }
 });

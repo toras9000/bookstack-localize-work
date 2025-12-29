@@ -1,21 +1,14 @@
-#r "sdk:Microsoft.NET.Sdk.Web"
-#r "nuget: Lestaly.General, 0.102.0"
-#r "nuget: Kokuban, 0.2.0"
-#load ".settings.csx"
-#nullable enable
-using System.IO;
-using System.Net.Http;
-using System.Security.Authentication.ExtendedProtection;
+#!/usr/bin/env -S dotnet run --file
+#:sdk Microsoft.NET.Sdk.Web
+#:package Lestaly.General@0.114.0
+#:package Kokuban@0.2.0
+#:package RefFile@0.2.0
+#:property PublishAot=false
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Threading;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging.Console;
 using Kokuban;
 using Lestaly;
+[assembly: RefFile(".settings.cs1")]
 
 var whSettings = new
 {
@@ -35,13 +28,13 @@ var whSettings = new
 return await Paved.ProceedAsync(async () =>
 {
     // Set output encoding to UTF8.
-    using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
+    using var outenc = Console.OutputUtf8EncodingPeriod();
 
     // Display URL to set up in BookStack.
     // This will be by the hostname added to the included docker container.
-    WriteLine($"Endpoint address:");
-    WriteLine($"    http://{whSettings.ContainerGatewayName}:{whSettings.PortNumber}/{whSettings.EndpointName}");
-    WriteLine();
+    Console.WriteLine($"Endpoint address:");
+    Console.WriteLine($"    http://{whSettings.ContainerGatewayName}:{whSettings.PortNumber}/{whSettings.EndpointName}");
+    Console.WriteLine();
 
     // Formatting options for outputting JSON.
     var jsonOpt = new JsonSerializerOptions();
@@ -62,23 +55,23 @@ return await Paved.ProceedAsync(async () =>
             var body = await request.ReadFromJsonAsync<JsonElement>();
             var json = JsonSerializer.Serialize(body, jsonOpt);
             if (0 < whSettings.MaxJsonOutputLength) json = json.EllipsisByLength(whSettings.MaxJsonOutputLength, "...");
-            WriteLine(Chalk.Green[$"{DateTime.Now}: Endpoint={request.Path}, JSON received."]);
-            WriteLine(json);
+            Console.WriteLine(Chalk.Green[$"{DateTime.Now}: Endpoint={request.Path}, JSON received."]);
+            Console.WriteLine(json);
         }
         catch
         {
-            WriteLine(Chalk.Yellow[$"{DateTime.Now}: Endpoint={request.Path}, Not JSON."]);
+            Console.WriteLine(Chalk.Yellow[$"{DateTime.Now}: Endpoint={request.Path}, Not JSON."]);
         }
 
         return Results.Ok();
     });
     server.MapFallback((HttpRequest request) =>
     {
-        WriteLine(Chalk.Gray[$"{DateTime.Now}: Ignore request, Path={request.Path}"]);
+        Console.WriteLine(Chalk.Gray[$"{DateTime.Now}: Ignore request, Path={request.Path}"]);
         return Results.NotFound();
     });
 
     // Start HTTP Server
-    WriteLine($"Start HTTP service.");
+    Console.WriteLine($"Start HTTP service.");
     await server.RunAsync($"http://*:{whSettings.PortNumber}");
 });

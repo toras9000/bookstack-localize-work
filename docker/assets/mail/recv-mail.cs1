@@ -1,27 +1,23 @@
-#r "nuget: SmtpServer, 11.0.0"
-#r "nuget: MimeKit, 4.13.0"
-#r "nuget: Lestaly.General, 0.102.0"
-#r "nuget: Kokuban, 0.2.0"
-#nullable enable
+#!/usr/bin/env -S dotnet run --file
+#:package SmtpServer@11.1.0
+#:package MimeKit@4.14.0
+#:package Lestaly.General@0.114.0
+#:package Kokuban@0.2.0
+#:property PublishAot=false
 using System.Buffers;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using Lestaly;
 using Kokuban;
+using Lestaly;
 using SmtpServer;
 using SmtpServer.Protocol;
 using SmtpServer.Storage;
 using SmtpServerServiceProvider = SmtpServer.ComponentModel.ServiceProvider;
 
-// This script is meant to run with dotnet-script.
-// Install .NET8 and run `dotnet tool install -g dotnet-script`
-
 // Receive and dump mail.
 
 await Paved.RunAsync(async () =>
 {
-    using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
+    using var outenc = Console.OutputUtf8EncodingPeriod();
     using var signal = new SignalCancellationPeriod();
 
     // Service info
@@ -31,10 +27,10 @@ await Paved.RunAsync(async () =>
 
     // Display server information.
     // This has already been configured in the included container, so no additional configuration should be required.
-    WriteLine($"Server name : {hostName}");
-    WriteLine($"Server port : {portNumber}");
-    WriteLine($"Dump dir    : {dumpDir.FullName}");
-    WriteLine();
+    Console.WriteLine($"Server name : {hostName}");
+    Console.WriteLine($"Server port : {portNumber}");
+    Console.WriteLine($"Dump dir    : {dumpDir.FullName}");
+    Console.WriteLine();
 
     // Configure server options.
     var options = new SmtpServerOptionsBuilder()
@@ -47,7 +43,7 @@ await Paved.RunAsync(async () =>
     provider.Add(new FileMessageStore(dumpDir));
 
     // Start HTTP Server
-    WriteLine($"Start mail receiver.");
+    Console.WriteLine($"Start mail receiver.");
     var server = new SmtpServer.SmtpServer(options, provider);
     await server.StartAsync(signal.Token);
 });
@@ -57,7 +53,7 @@ class FileMessageStore(DirectoryInfo dumpDir) : MessageStore
     public override async Task<SmtpResponse> SaveAsync(ISessionContext context, IMessageTransaction transaction, ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
     {
         var timestamp = DateTime.Now;
-        WriteLine($"  {timestamp:yyyyMMdd_HHmmss.fff}: To={transaction.To.Select(t => $"{t.User}@{t.Host}").JoinString(", ")}");
+        Console.WriteLine($"  {timestamp:yyyyMMdd_HHmmss.fff}: To={transaction.To.Select(t => $"{t.User}@{t.Host}").JoinString(", ")}");
         try
         {
             // Copy the entire message into the memory stream.
@@ -89,7 +85,7 @@ class FileMessageStore(DirectoryInfo dumpDir) : MessageStore
         }
         catch (Exception ex)
         {
-            WriteLine(Chalk.Red[$"    Failed to store. Err={ex.Message}"]);
+            Console.WriteLine(Chalk.Red[$"    Failed to store. Err={ex.Message}"]);
         }
 
         return SmtpResponse.Ok;

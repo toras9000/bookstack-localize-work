@@ -1,23 +1,24 @@
-#r "nuget: BookStackApiClient, 25.7.0-lib.1"
-#r "nuget: SkiaSharp, 3.119.0"
-#r "nuget: Faker.Net, 2.0.163"
-#r "nuget: Lestaly.General, 0.102.0"
-#load ".settings.csx"
-#nullable enable
-using System.Text.RegularExpressions;
-using System.Threading;
+#!/usr/bin/env -S dotnet run --file
+#:package BookStackApiClient@25.11.0-lib.2
+#:package SkiaSharp@3.119.1
+#:package Faker.Net@2.0.163
+#:package Lestaly.General@0.114.0
+#:package RefFile@0.2.0
 using BookStackApiClient;
 using Lestaly;
 using SkiaSharp;
 
+[assembly: RefFile(".settings.cs1")]
+
 return await Paved.ProceedAsync(async () =>
 {
     // Prepare console
-    using var outenc = ConsoleWig.OutputEncodingPeriod(Encoding.UTF8);
+    using var outenc = Console.OutputUtf8EncodingPeriod();
     using var signal = new SignalCancellationPeriod();
 
     // Generate a number of entities for testing.
-    using var client = new BookStackClient(new(settings.BookStack.Api.Entry), settings.BookStack.Api.TokenId, settings.BookStack.Api.TokenSecret);
+    var settings = new Settings(ThisSource.Directory());
+    using var client = new BookStackClient(settings.BookStack.Api.Endpoint, settings.BookStack.Api.TokenId, settings.BookStack.Api.TokenSecret);
 
     // generate sample images
     var images = generateSampleImages();
@@ -25,7 +26,7 @@ return await Paved.ProceedAsync(async () =>
     var image2 = images[1];
 
     // Create sample entities
-    WriteLine("Setup entities ...");
+    Console.WriteLine("Setup entities ...");
     var book = await client.CreateBookAsync(new("TestBook"), cancelToken: signal.Token);
     var chapter1 = await client.CreateChapterAsync(new(book.id, "TestChapter1"), signal.Token);
     var page1 = await client.CreateMarkdownPageInChapterAsync(new(chapter1.id, "TestPage1", $"# markdown page1\n{Faker.Lorem.Paragraphs(4).JoinString("\n\n")}"), signal.Token);
@@ -40,11 +41,9 @@ return await Paved.ProceedAsync(async () =>
 
     var attach1 = await client.CreateFileAttachmentAsync(new("image1", page3.id), image1.Binary, $"image1.{image1.Ext}", signal.Token);
     var attach2 = await client.CreateFileAttachmentAsync(new("image2", page4.id), image2.Binary, $"image2.{image2.Ext}", signal.Token);
-    WriteLine("Completed");
+    Console.WriteLine("Completed");
 
 });
-
-record SampleImage(byte[] Binary, string Ext);
 
 List<SampleImage> generateSampleImages()
 {
@@ -73,3 +72,5 @@ List<SampleImage> generateSampleImages()
 
     return images;
 }
+
+record SampleImage(byte[] Binary, string Ext);

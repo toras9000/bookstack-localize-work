@@ -1,0 +1,33 @@
+#!/usr/bin/env -S dotnet run --file
+#:package Lestaly.General@0.114.0
+using Lestaly;
+
+public record SettingsDocker(FileInfo Compose);
+public record SettingsDatabase(ushort Port, string Host, string Database, string Username, string Password);
+public record SettingsBookStack(Uri Url, SettingsBookStackApi Api);
+public record SettingsBookStackApi(Uri Endpoint, string TokenName, string TokenId, string TokenSecret);
+
+public record Settings(DirectoryInfo ContextDir)
+{
+    public SettingsDocker Docker { get; } = new(
+        Compose: ContextDir.RelativeFile("./docker/compose.yml")
+    );
+
+    public SettingsDatabase Database { get; } = new(
+        Port: 9983,
+        Host: "localhost",
+        Database: "bookstack_store",
+        Username: "bookstack_user",
+        Password: "bookstack_pass"
+    );
+
+    public SettingsBookStack BookStack { get; } = new(
+        Url: new(@"http://localhost:9984/"),
+        Api: new(
+            Endpoint: new(@"http://localhost:9984/api/"),
+            TokenName: "TestToken",
+            TokenId: "00001111222233334444555566667777",
+            TokenSecret: "88889999aaaabbbbccccddddeeeeffff"
+        )
+    );
+}
