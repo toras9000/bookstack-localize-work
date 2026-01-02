@@ -1,7 +1,7 @@
 name: bookstack-localize-work
 
 x-var: &BOOKSTACK_IMAGE
-  "lscr.io/linuxserver/bookstack:version-v25.12"
+  "lscr.io/linuxserver/bookstack:version-v25.12.1"
 
 volumes:
   bookstack-db-data:
