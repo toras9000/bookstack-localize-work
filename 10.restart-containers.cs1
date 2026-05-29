@@ -1,0 +1,14 @@
+#!/usr/bin/env -S dotnet run --file
+#:package Lestaly.General@0.128.0
+#:package RefFile@0.2.0
+using Lestaly;
+using Lestaly.Cx;
+[assembly: RefFile(".settings.cs1")]
+
+return await Paved.ProceedAsync(noPause: args.RoughContains("--no-pause"), async () =>
+{
+    Console.WriteLine("Restart service ...");
+    var settings = new Settings(ThisSource.Directory());
+    await "docker".args("compose", "--file", settings.Docker.Compose, "down", "--remove-orphans").echo();
+    await "docker".args("compose", "--file", settings.Docker.Compose, "up", "--detach", "--wait").echo().result().success();
+});

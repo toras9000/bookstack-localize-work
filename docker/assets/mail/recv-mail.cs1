@@ -1,7 +1,7 @@
 #!/usr/bin/env -S dotnet run --file
 #:package SmtpServer@11.1.0
-#:package MimeKit@4.14.0
-#:package Lestaly.General@0.114.0
+#:package MimeKit@4.17.0
+#:package Lestaly.General@0.128.0
 #:package Kokuban@0.2.0
 #:property PublishAot=false
 using System.Buffers;

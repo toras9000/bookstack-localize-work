@@ -1,6 +1,6 @@
 #!/usr/bin/env -S dotnet run --file
 #:sdk Microsoft.NET.Sdk.Web
-#:package Lestaly.General@0.114.0
+#:package Lestaly.General@0.128.0
 #:package Kokuban@0.2.0
 #:package RefFile@0.2.0
 #:property PublishAot=false
@@ -27,9 +27,6 @@ var whSettings = new
 
 return await Paved.ProceedAsync(async () =>
 {
-    // Set output encoding to UTF8.
-    using var outenc = Console.OutputUtf8EncodingPeriod();
-
     // Display URL to set up in BookStack.
     // This will be by the hostname added to the included docker container.
     Console.WriteLine($"Endpoint address:");

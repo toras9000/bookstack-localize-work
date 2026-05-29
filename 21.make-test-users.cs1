@@ -1,0 +1,44 @@
+#!/usr/bin/env -S dotnet run --file
+#:package BookStackApiClient@26.3.0-lib.2
+#:package Lestaly.General@0.128.0
+#:package Kokuban@0.2.0
+#:package RefFile@0.2.0
+using BookStackApiClient;
+using Kokuban;
+using Lestaly;
+[assembly: RefFile(".settings.cs1")]
+
+var userSettings = new
+{
+    Users = new[]
+    {
+        new { Name = "user1", Mail = "user1@example.com",  Password = "user1-pass", },
+    }
+};
+
+return await Paved.ProceedAsync(noPause: args.RoughContains("--no-pause"), async () =>
+{
+    using var signal = new SignalCancellationPeriod();
+
+    // Generate a number of entities for testing.
+    var settings = new Settings(ThisSource.Directory());
+    using var client = new BookStackClient(settings.BookStack.Api.Endpoint, settings.BookStack.Api.TokenId, settings.BookStack.Api.TokenSecret);
+
+    // Create sample entities
+    Console.WriteLine("Setup entities ...");
+    var users = await client.ListUsersAsync(cancelToken: signal.Token);
+    foreach (var user in userSettings.Users)
+    {
+        Console.WriteLine($"User {Chalk.Blue[user.Name]}");
+        var exists = users.data.Any(u => u.email == user.Mail);
+        if (exists)
+        {
+            Console.WriteLine(".. Already exists");
+            continue;
+        }
+
+        var createdUser = await client.CreateUserAsync(new(user.Name, user.Mail, password: user.Password), cancelToken: signal.Token);
+        Console.WriteLine($".. Created: ID={createdUser.id}");
+    }
+
+});
