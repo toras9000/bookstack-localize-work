@@ -1,6 +1,6 @@
 #!/usr/bin/env -S dotnet run --file
 #:sdk Microsoft.NET.Sdk.Web
-#:package Lestaly.General@0.128.0
+#:package Lestaly.General@0.139.0
 #:package Kokuban@0.2.0
 #:package RefFile@0.2.0
 #:property PublishAot=false
